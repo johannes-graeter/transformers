@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>transformers</name>
+  <version>0.0.0</version>
+  <description>Get rid of missusing transforms with wrong coordinate systems!</description>
+
+  <license>MIT</license>
+  <maintainer email="johannes.graeter@googlemail.com">Johannes Graeter</maintainer>
+  <author email="johannes.graeter@googlemail.com">Johannes Graeter</author>
+  <author email="johannes.beck@kit.edu">Johannes Beck</author>
+  <url type="repository">https://gitlab.mrt.uni-karlsruhe.de/MRT/draft/transformers</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>mrt_cmake_modules</build_depend>
+  <test_depend>gtest</test_depend>
+
+  <depend>eigen</depend>
+</package>
