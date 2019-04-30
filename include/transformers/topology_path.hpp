@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <functional>
 #include <iostream>
 #include <utility>
@@ -39,9 +40,8 @@ std::ostream& operator<<(std::ostream& os, Streamer<std::variant<Ts...>> sv) {
     return os;
 }
 
-
 ///@brief Define time type.
-using Time = int;
+using Time = std::chrono::nanoseconds;
 
 /**
  * @brief The NotConnectedException struct
@@ -59,12 +59,13 @@ struct NotConnectedException : public std::exception {
  * This is used to get the path of a TopologyGraph and use it for transformations.
  * Especially usefull, if paths shall be connected at different time instances.
  */
-template <typename... Ts>
+template <typename VarType>
 class TopologyPath {
 public:
-    using VarType = std::variant<Ts...>;         ///> Type for storing nodes of different dynamic coord types.
     using TimedCoord = std::pair<VarType, Time>; ///> Datatype that is stored in topology.
 
+public:
+    ///@brief Default construct.
     TopologyPath() = default;
 
     /**
@@ -80,8 +81,8 @@ public:
      * @param t Topology to be appended.
      * @return concatenated topology
      */
-    TopologyPath<Ts...> operator*(const TopologyPath<Ts...>& t) {
-        TopologyPath<Ts...> out(this->getData()); ///@todo Do I need that copy?
+    TopologyPath<VarType> operator*(const TopologyPath<VarType>& t) {
+        TopologyPath<VarType> out(this->getData()); // Do I need that copy?
 
         if (out.getData().back().first == t.getData().front().first) {
             // Advance iterators until redundant info is gone.
@@ -117,9 +118,16 @@ public:
      * @brief inverse Invert topology in place.
      * @return inverted topology
      */
-    TopologyPath<Ts...>& inverse() {
+    TopologyPath<VarType>& inverse() {
         std::reverse(getData().begin(), getData().end());
         return *this;
+    }
+
+    /**
+     * @brief size, convenience function for getting size of the topology.
+     */
+    size_t size() const {
+        return getData().size();
     }
 
     /**
@@ -127,7 +135,7 @@ public:
      * @param other
      * @return
      */
-    bool operator==(const TopologyPath<Ts...>& other) const {
+    bool operator==(const TopologyPath<VarType>& other) const {
         bool out = true;
 
         auto dataIter = getData().cbegin();
@@ -183,7 +191,7 @@ public:
      */
     void print() const {
         for (const auto& el : getData()) {
-            std::cout << "node " << Streamer{el.first} << " at " << el.second << "; ";
+            std::cout << "node " << Streamer{el.first} << " at " << el.second.count() << " ns; ";
         }
         std::cout << std::endl;
     }

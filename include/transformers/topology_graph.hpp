@@ -10,6 +10,8 @@
 #include <iostream>
 #include <variant>
 #include <boost/bimap.hpp>
+//#include <boost/variant.hpp>
+#include <variant>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/graph_traits.hpp>
@@ -65,11 +67,10 @@ private:
  *
  * Defines and connects topologies for coordinate transforms
  */
-template <typename... Ts>
+template <typename VarType>
 class TopologyGraph {
-    using VarType = std::variant<Ts...>; ///> Type used to represent nodes from topology path.
-    using Node = size_t;                 ///> Internal representation of nodes for graph
-    using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>; ///> Boost graph type.
+    using Node = size_t;
+    using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS>;
 
 public:
     template <typename T0, typename T1>
@@ -89,7 +90,8 @@ public:
      * @return Path from - to at time t as Topology.
      */
     template <typename ToCoord, typename FromCoord>
-    TopologyPath<Ts...> get(const ToCoord& to, const FromCoord& from, Time time = -1) const {
+    TopologyPath<VarType> get(const ToCoord& to, const FromCoord& from, Time time = Time(0)) const {
+
 
         // This throws if node where not added yet.
         Node toNode = nodeList_.left.at(VarType(TfTrait<ToCoord>::toDynamic(to)));
@@ -118,7 +120,7 @@ public:
         }
 
         // Walk back on predecessor_map and add to topology.
-        TopologyPath<Ts...> out;
+        TopologyPath<VarType> out;
         Vertex current = goal;
         while (current != start) {
             auto it = nodeList_.right.find(current);

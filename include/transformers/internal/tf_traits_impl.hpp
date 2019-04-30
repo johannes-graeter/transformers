@@ -42,7 +42,7 @@ struct IsSameImpl;
 
 template <typename T, typename OtherT>
 struct IsSameImpl<true, true, T, OtherT> {
-    static constexpr bool apply(const T& /*a*/, const OtherT& /*b*/) {
+    static bool apply(const T& /*a*/, const OtherT& /*b*/) {
         return std::is_same<T, OtherT>::value;
     }
 };
@@ -53,14 +53,14 @@ struct IsSameImpl<true, true, T, OtherT> {
  */
 template <typename T>
 struct IsSameImpl<true, false, T, ConvertedDynamicType> {
-    static constexpr bool apply(const T& /*a*/, const ConvertedDynamicType& b) {
+    static bool apply(const T& /*a*/, const ConvertedDynamicType& b) {
         return typeid(T).hash_code() == b;
     }
 };
 
 template <typename OtherT>
 struct IsSameImpl<false, true, ConvertedDynamicType, OtherT> {
-    static constexpr bool apply(const ConvertedDynamicType& a, const OtherT& /*b*/) {
+    static bool apply(const ConvertedDynamicType& a, const OtherT& /*b*/) {
         return typeid(OtherT).hash_code() == a;
     }
 };
@@ -125,18 +125,17 @@ struct TfTraitImpl<true, T> {
     }
 
     /**
-     * @brief isSame Use StaticIsSame struct to test for coords equality.
-     * For convenience, interface with unused input is also defined.
+     * @brief isSame use StaticIsSame struct to test for coords equality
+     * for convenience, interface with unsued input is also defined.
      * @param b coordinate system to compare to.
      * @return bool
      */
     template <typename OtherT>
-    static constexpr bool isSame(const T& /*a*/, const OtherT& b) {
+    static bool isSame(const T& /*a*/, const OtherT& b) {
         return IsSame<T, OtherT>::apply(T{}, b);
     }
-
     template <typename OtherT>
-    static constexpr bool isSame(const OtherT& b) {
+    static bool isSame(const OtherT& b) {
         return IsSame<T, OtherT>::apply(T{}, b);
     }
 };

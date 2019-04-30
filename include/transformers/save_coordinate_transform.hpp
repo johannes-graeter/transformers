@@ -78,7 +78,7 @@ public:
      * @brief getCoord, Getter for coordinate system.
      * Cannot be const C& since coordinate system is a temporary object if coordinate system is static.
      */
-    constexpr C getCoord() const {
+    C getCoord() const {
         return CoordinateSystemStorage<TfTrait<C>::IsStatic, CoordinateTag::Other, C>::get();
     }
 
@@ -126,22 +126,16 @@ public:
      * @brief Transform
      * @param data transform data.
      */
-    explicit Transform(const DataType& data) : data_(data) {
+    explicit Transform(DataType data) : data_(std::move(data)) {
         static_assert(TfTrait<FromCoord>::IsStatic && TfTrait<ToCoord>::IsStatic,
                       "Error in save_coordinate_transform: Transform has no coordinate system given, but has dynamic "
                       "coordinate systems.");
     }
 
-    /**
-     * @brief Transform
-     * @param data transform data.
-     * @param toCoord coordinate system to transform to.
-     * @param fromCoord coordinate system to trasnform from.
-     */
-    Transform(const DataType& data, const ToCoord& toCoord, const FromCoord& fromCoord)
+    Transform(DataType data, const ToCoord& toCoord, const FromCoord& fromCoord)
             : CoordinateSystemStorage<TfTrait<ToCoord>::IsStatic, CoordinateTag::To, ToCoord>(toCoord),
               CoordinateSystemStorage<TfTrait<FromCoord>::IsStatic, CoordinateTag::From, FromCoord>(fromCoord),
-              data_(data) {
+              data_(std::move(data)) {
     }
 
     /**
@@ -151,15 +145,13 @@ public:
      */
     template <typename OtherTo, typename OtherFrom>
     Transform<ToCoord, OtherFrom, DataType> operator*(const Transform<OtherTo, OtherFrom, DataType>& otherT) const {
-        // Test at compile time of coordinate systems are correct.
-        // For dynamic systems of the same type this is always true.
-        if constexpr (TfTrait<FromCoord>::IsStatic && TfTrait<OtherTo>::IsStatic) {
-            static_assert(TfTrait<FromCoord>::isSame(otherT.getToCoord()));
-        } else {
-            // Check at runtime if coordinate systems are correct.
-            if (!TfTrait<FromCoord>::isSame(getFromCoord(), otherT.getToCoord())) {
-                throw TransformException();
-            }
+        //        // Test at compile time of coordinate systems are correct.
+        //        // For dynamic systems of the same type this is always true.
+        //        static_assert(TfTrait<FromCoord>::isSame(getFromCoord(), otherT.getToCoord()));
+
+        // Check at runtime if coordinate systems are correct.
+        if (!TfTrait<FromCoord>::isSame(getFromCoord(), otherT.getToCoord())) {
+            throw TransformException();
         }
         return Transform<ToCoord, OtherFrom, DataType>(
             this->getData() * otherT.getData(), getToCoord(), otherT.getFromCoord());
@@ -193,15 +185,13 @@ public:
      */
     template <typename OtherFrom, typename PointDataType>
     Point<ToCoord, PointDataType> operator*(const Point<OtherFrom, PointDataType>& point) const {
-        // Test at compile time of coordinate systems are correct.
-        // For dynamic systems of the same type this is always true.
-        if constexpr (TfTrait<FromCoord>::IsStatic && TfTrait<OtherFrom>::IsStatic) {
-            static_assert(TfTrait<FromCoord>::isSame(point.getCoord()));
-        } else {
-            // Test dynamic system.
-            if (!TfTrait<FromCoord>::isSame(getFromCoord(), point.getCoord())) {
-                throw TransformException();
-            }
+        //        // Test at compile time of coordinate systems are correct.
+        //        // For dynamic systems of the same type this is always true.
+        //        static_assert(TfTrait<FromCoord>::isSame(getFromCoord(), point.getCoord()));
+
+        // Test dynamic system.
+        if (!TfTrait<FromCoord>::isSame(getFromCoord(), point.getCoord())) {
+            throw TransformException();
         }
         return Point<ToCoord, PointDataType>(this->getData() * point.getData(), getToCoord());
     }
@@ -213,15 +203,13 @@ public:
      */
     template <typename OtherFrom, typename ScalarType, int Size>
     Points<ToCoord, ScalarType, Size> operator*(const Points<OtherFrom, ScalarType, Size>& points) const {
-        // Test at compile time of coordinate systems are correct.
-        // For dynamic systems of the same type this is always true.
-        if constexpr (TfTrait<FromCoord>::IsStatic && TfTrait<OtherFrom>::IsStatic) {
-            static_assert(TfTrait<FromCoord>::isSame(points.getCoord()));
-        } else {
-            // Test dynamic system.
-            if (!TfTrait<FromCoord>::isSame(getFromCoord(), points.getCoord())) {
-                throw TransformException();
-            }
+        //        // Test at compile time of coordinate systems are correct.
+        //        // For dynamic systems of the same type this is always true.
+        //        static_assert(TfTrait<FromCoord>::isSame(getFromCoord(), points.getCoord()));
+
+        // Test dynamic system.
+        if (!TfTrait<FromCoord>::isSame(getFromCoord(), points.getCoord())) {
+            throw TransformException();
         }
         return Points<ToCoord, ScalarType, Size>(this->getData() * points.getData().colwise().homogeneous(),
                                                  getToCoord());
@@ -240,7 +228,7 @@ public:
      * Cannot be const C& since coordinate system is a temporary object if coordinate system is static.
      * @return coordinate system
      */
-    constexpr ToCoord getToCoord() const {
+    ToCoord getToCoord() const {
         return CoordinateSystemStorage<TfTrait<ToCoord>::IsStatic, CoordinateTag::To, ToCoord>::get();
     }
 
@@ -249,7 +237,7 @@ public:
      * Cannot be const C& since coordinate system is a temporary object if coordinate system is static.
      * @return coordinate system
      */
-    constexpr FromCoord getFromCoord() const {
+    FromCoord getFromCoord() const {
         return CoordinateSystemStorage<TfTrait<FromCoord>::IsStatic, CoordinateTag::From, FromCoord>::get();
     }
 

@@ -34,7 +34,7 @@ struct CoordinateSystemStorage<false, Tag, Coord> {
 public:
     explicit CoordinateSystemStorage(Coord c) : coord_(std::move(c)) {
     }
-    constexpr const Coord& get() const {
+    const Coord& get() const {
         return coord_;
     }
 
@@ -63,7 +63,7 @@ struct CoordinateSystemStorage<true, Tag, Coord> {
      */
     explicit CoordinateSystemStorage(const Coord& /*c*/) {
     }
-    constexpr Coord get() const {
+    Coord get() const {
         return Coord();
     }
 };
