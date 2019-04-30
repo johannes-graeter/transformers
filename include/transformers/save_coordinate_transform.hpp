@@ -153,11 +153,9 @@ public:
     Transform<ToCoord, OtherFrom, DataType> operator*(const Transform<OtherTo, OtherFrom, DataType>& otherT) const {
         // Test at compile time of coordinate systems are correct.
         // For dynamic systems of the same type this is always true.
-        if
-            constexpr(TfTrait<FromCoord>::IsStatic && TfTrait<OtherTo>::IsStatic) {
-                static_assert(TfTrait<FromCoord>::isSame(otherT.getToCoord()));
-            }
-        else {
+        if constexpr (TfTrait<FromCoord>::IsStatic && TfTrait<OtherTo>::IsStatic) {
+            static_assert(TfTrait<FromCoord>::isSame(otherT.getToCoord()));
+        } else {
             // Check at runtime if coordinate systems are correct.
             if (!TfTrait<FromCoord>::isSame(getFromCoord(), otherT.getToCoord())) {
                 throw TransformException();
@@ -197,11 +195,9 @@ public:
     Point<ToCoord, PointDataType> operator*(const Point<OtherFrom, PointDataType>& point) const {
         // Test at compile time of coordinate systems are correct.
         // For dynamic systems of the same type this is always true.
-        if
-            constexpr(TfTrait<FromCoord>::IsStatic && TfTrait<OtherFrom>::IsStatic) {
-                static_assert(TfTrait<FromCoord>::isSame(point.getCoord()));
-            }
-        else {
+        if constexpr (TfTrait<FromCoord>::IsStatic && TfTrait<OtherFrom>::IsStatic) {
+            static_assert(TfTrait<FromCoord>::isSame(point.getCoord()));
+        } else {
             // Test dynamic system.
             if (!TfTrait<FromCoord>::isSame(getFromCoord(), point.getCoord())) {
                 throw TransformException();
@@ -219,11 +215,9 @@ public:
     Points<ToCoord, ScalarType, Size> operator*(const Points<OtherFrom, ScalarType, Size>& points) const {
         // Test at compile time of coordinate systems are correct.
         // For dynamic systems of the same type this is always true.
-        if
-            constexpr(TfTrait<FromCoord>::IsStatic && TfTrait<OtherFrom>::IsStatic) {
-                static_assert(TfTrait<FromCoord>::isSame(points.getCoord()));
-            }
-        else {
+        if constexpr (TfTrait<FromCoord>::IsStatic && TfTrait<OtherFrom>::IsStatic) {
+            static_assert(TfTrait<FromCoord>::isSame(points.getCoord()));
+        } else {
             // Test dynamic system.
             if (!TfTrait<FromCoord>::isSame(getFromCoord(), points.getCoord())) {
                 throw TransformException();
